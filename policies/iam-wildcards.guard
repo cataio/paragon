@@ -1,0 +1,61 @@
+let iam_inline_policies = Resources.*[ Type == 'AWS::IAM::Policy' ]
+let iam_managed_policies = Resources.*[ Type == 'AWS::IAM::ManagedPolicy' ]
+let iam_principals = Resources.*[
+  Type == 'AWS::IAM::Role' or
+  Type == 'AWS::IAM::User' or
+  Type == 'AWS::IAM::Group'
+]
+
+rule PARAGON_IAM_INLINE_POLICY_NO_ADMIN_WILDCARDS when %iam_inline_policies !empty {
+  check_policy_document(%iam_inline_policies.Properties.PolicyDocument)
+  <<
+    Violation: IAM inline policies must not allow Action "*" over Resource "*".
+    Fix: Replace full wildcards with explicit actions and scoped resource ARNs.
+  >>
+}
+
+rule PARAGON_IAM_MANAGED_POLICY_NO_ADMIN_WILDCARDS when %iam_managed_policies !empty {
+  check_policy_document(%iam_managed_policies.Properties.PolicyDocument)
+  <<
+    Violation: IAM managed policies must not allow Action "*" over Resource "*".
+    Fix: Replace full wildcards with explicit actions and scoped resource ARNs.
+  >>
+}
+
+rule PARAGON_IAM_PRINCIPAL_INLINE_POLICY_NO_ADMIN_WILDCARDS when %iam_principals !empty {
+  check_principal_inline_policies(%iam_principals.Properties)
+  <<
+    Violation: IAM role, user, or group inline policies must not allow Action "*" over Resource "*".
+    Fix: Replace full wildcards with explicit actions and scoped resource ARNs.
+  >>
+}
+
+rule check_principal_inline_policies(principals) {
+  %principals[ Policies exists Policies is_list Policies not empty ] {
+    Policies[*].PolicyDocument {
+      check_policy_document(this)
+    }
+  }
+}
+
+rule check_policy_document(policy_documents) {
+  %policy_documents[ Statement exists ] {
+    check_statement(Statement)
+  }
+}
+
+rule check_statement(statements) {
+  %statements[
+    Effect == "Allow"
+    Action exists
+    Resource exists
+  ] {
+    check_admin_access(Action, Resource)
+  }
+}
+
+rule check_admin_access(actions, resources) {
+  when some %actions[*] == "*" {
+    %resources[*] != "*"
+  }
+}

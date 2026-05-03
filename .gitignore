@@ -1,0 +1,9 @@
+node_modules/
+lib/
+cdk.out/
+coverage/
+*.tgz
+.DS_Store
+.env
+.env.*
+npm-debug.log*

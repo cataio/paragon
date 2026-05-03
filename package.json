@@ -1,0 +1,56 @@
+{
+  "name": "@cataio/paragon",
+  "version": "0.1.0",
+  "description": "Three CloudFormation Guard Hooks that block insecure AWS resources before they exist.",
+  "license": "Apache-2.0",
+  "author": "Cata Sarafoleanu",
+  "homepage": "https://github.com/cataio/paragon#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cataio/paragon.git"
+  },
+  "bugs": {
+    "url": "https://github.com/cataio/paragon/issues"
+  },
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "files": [
+    "lib",
+    "policies",
+    "README.md",
+    "LICENSE"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "npm run build && vitest run",
+    "validate:policies": "scripts/validate-policies.sh",
+    "prepack": "npm run build",
+    "prepublishOnly": "npm test",
+    "pack:check": "npm pack --dry-run",
+    "synth:example": "npm run build && npx cdk synth --app \"npx ts-node examples/basic/bin/app.ts\""
+  },
+  "keywords": [
+    "aws",
+    "cdk",
+    "cloudformation",
+    "cloudformation-guard",
+    "guard-hooks",
+    "security"
+  ],
+  "peerDependencies": {
+    "aws-cdk-lib": "^2.252.0",
+    "constructs": "^10.4.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.0",
+    "aws-cdk": "^2.1029.3",
+    "aws-cdk-lib": "^2.252.0",
+    "constructs": "^10.4.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.8"
+  }
+}

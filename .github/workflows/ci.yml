@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Test
+        run: npm test
+
+      - name: Install cfn-guard
+        run: |
+          curl -L -o /tmp/cfn-guard.tar.gz https://github.com/aws-cloudformation/cloudformation-guard/releases/download/3.2.0/cfn-guard-v3-x86_64-ubuntu-latest.tar.gz
+          mkdir -p /tmp/cfn-guard
+          tar -xzf /tmp/cfn-guard.tar.gz -C /tmp/cfn-guard
+          echo "/tmp/cfn-guard/cfn-guard-v3-x86_64-ubuntu-latest" >> "$GITHUB_PATH"
+
+      - name: Validate Guard policies
+        run: npm run validate:policies
+
+      - name: Package check
+        run: npm run pack:check

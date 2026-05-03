@@ -1,0 +1,13 @@
+let s3_buckets = Resources.*[ Type == 'AWS::S3::Bucket' ]
+
+rule PARAGON_S3_BUCKET_BLOCK_PUBLIC_ACCESS when %s3_buckets !empty {
+  %s3_buckets.Properties.PublicAccessBlockConfiguration exists
+  %s3_buckets.Properties.PublicAccessBlockConfiguration.BlockPublicAcls == true
+  %s3_buckets.Properties.PublicAccessBlockConfiguration.BlockPublicPolicy == true
+  %s3_buckets.Properties.PublicAccessBlockConfiguration.IgnorePublicAcls == true
+  %s3_buckets.Properties.PublicAccessBlockConfiguration.RestrictPublicBuckets == true
+  <<
+    Violation: S3 buckets must block public access at the bucket level.
+    Fix: Set all four PublicAccessBlockConfiguration fields to true.
+  >>
+}

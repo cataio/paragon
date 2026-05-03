@@ -1,0 +1,10 @@
+let lambda_functions = Resources.*[ Type == 'AWS::Lambda::Function' ]
+
+rule PARAGON_LAMBDA_TRACING_ACTIVE when %lambda_functions !empty {
+  %lambda_functions.Properties.TracingConfig exists
+  %lambda_functions.Properties.TracingConfig.Mode == "Active"
+  <<
+    Violation: Lambda functions must have X-Ray tracing enabled.
+    Fix: Set TracingConfig.Mode to Active.
+  >>
+}

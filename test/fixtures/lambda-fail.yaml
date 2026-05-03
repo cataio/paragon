@@ -1,0 +1,9 @@
+Resources:
+  Function:
+    Type: AWS::Lambda::Function
+    Properties:
+      Runtime: nodejs20.x
+      Handler: index.handler
+      Role: arn:aws:iam::123456789012:role/example
+      Code:
+        ZipFile: exports.handler = async () => {};
